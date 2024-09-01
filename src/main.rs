@@ -1,5 +1,5 @@
 use core::str;
-use std::{env, error::Error, io::Result, net::UdpSocket};
+use std::{env, error::Error, fs::OpenOptions, io::Result, net::UdpSocket};
 
 use regex::Regex;
 
@@ -48,7 +48,8 @@ fn listen(port: i32) -> std::io::Result<()>{
 
         match firewall_log {
             Ok(log) => {
-                println!("{}", log)
+                //println!("{}", log);
+                parse_log(&log);
             }
 
             Err(err) => {
@@ -62,6 +63,18 @@ fn listen(port: i32) -> std::io::Result<()>{
 
 }
 
+fn write_log(log: &str) -> std::io::Result<()> {
+    let (first, last) = log.split_at(4);
+    let mut log_file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .create(true)
+        .open("./firewall-log.txt")?;
+
+
+    Ok(())
+}
+
 
 fn parse_log(log: &str) {
     let re = Regex::new(r"(\d\d:\d\d:\d\d) (\S+) kernel: (\w+) IN=(\w+) OUT= MAC=(\S+) SRC=(\S+) DST=(\S+) LEN=(\d+) TOS=(\S+) PREC=(\S+) TTL=(\d+) ID=(\d+) PROTO=(\w+) SPT=(\d+) DPT=(\d+) SEQ=(\d+) ACK=(\d+) WINDOW=(\d+) RES=(\S+) (\w+) URGP=(\d+)").unwrap();
@@ -71,7 +84,11 @@ fn parse_log(log: &str) {
 
     for (_, [time, hub, typ, addp, mac, src, dst, len, tos, prec, ttl, id, proto, spt, dpt, seq, ack, window, res, flag, urgp]) in re.captures_iter(log).map(|c| c.extract()) {
         result.push((time, hub, typ, addp, mac, src, dst, len.parse::<i32>().unwrap(), tos, prec, ttl.parse::<i32>().unwrap(), id.parse::<i32>().unwrap(), proto, spt.parse::<i32>().unwrap(), 
-            dpt.parse::<i32>().unwrap(),seq.parse::<i32>().unwrap(), ack.parse::<i32>().unwrap(), window.parse::<i32>().unwrap(), res, flag, urgp));
+            dpt.parse::<i32>().unwrap(),seq.parse::<f64>().unwrap(), ack.parse::<i32>().unwrap(), window.parse::<i32>().unwrap(), res, flag, urgp));
     }
+
+    let log = result[0];
+
+    println!("A {ptype} Packet has been dropped:\n\t- Src-IP:{src}\n\t- Dst-IP:{dst}\n\t- Src-Port:{spt}\n\t- Dst-Port:{dpt}", ptype = log.12,src=log.5,dst=log.6,spt=log.13,dpt=log.14);
 
 }
