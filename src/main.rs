@@ -1,6 +1,5 @@
 use core::str;
-use std::collections::HashMap;
-use std::{env, error::Error, fs::{File, OpenOptions}, io::{Result, Write}, iter::Map, net::UdpSocket};
+use std::{env, format, fs::{File, OpenOptions}, io::{Result, Write}, net::UdpSocket};
 
 use regex::Regex;
 use sqlite::{Connection, State};
@@ -23,11 +22,10 @@ fn main() {
     match port_wrapped {
         Ok(port) => {
             println!("Listing on port {}", port);
-            listen(port);
+            listen(port).expect("Error: Tying to listen on port");
         }
         Err(err) => {
             panic!("Error: Typing to parse port got this error {}", err)
-
         }
 
     }
@@ -43,17 +41,32 @@ fn listen(port: i32) -> Result<()>{
 
     let conn = Connection::open("connections.db").unwrap();
 
-    conn.execute("CREATE TABLE IF NOT EXISTS port_count (
+    conn.execute("
+    CREATE TABLE IF NOT EXISTS port_count (
     ID integer primary key,
     Port integer not null unique,
     Count integer not null
-            )").unwrap();
+            )
+    ").unwrap();
 
-    conn.execute("CREATE TABLE IF NOT EXISTS ip_count (
+    conn.execute("
+    CREATE TABLE IF NOT EXISTS ip_count (
             ID integer primary key,
             Ip text not null unique,
             Count integer not null
-            )").unwrap();
+            )
+    ").unwrap();
+
+    conn.execute("
+    CREATE TABLE IF NOT EXISTS requests (
+            ID INTEGER primary key,
+            Ip INTEGER not null,
+            Port INTEGER not null,
+            TimeRecived DATETIME not null,
+            FOREIGN KEY (Ip) REFERENCES ip_count(ID),
+            FOREIGN KEY (Port) REFERENCES port_count(ID)
+            )
+    ").unwrap();
 
     loop {
         let socket = UdpSocket::bind(format!("0.0.0.0:{}", port))?;
@@ -87,8 +100,6 @@ fn listen(port: i32) -> Result<()>{
             }
             
         }
-
-        
     }
 
 }
@@ -105,7 +116,6 @@ fn write_log(log: &str, log_file: &mut File) -> std::io::Result<()> {
 
 fn parse_log(log: &str, conn: &Connection) {
     let re = Regex::new(r"(\d\d:\d\d:\d\d) (\S+) kernel: (\w+) IN=(\w+) OUT= MAC=(\S+) SRC=(\S+) DST=(\S+) LEN=(\d+) TOS=(\S+) PREC=(\S+) TTL=(\d+) ID=(\d+) PROTO=(\w+) SPT=(\d+) DPT=(\d+) SEQ=(\d+) ACK=(\d+) WINDOW=(\d+) RES=(\S+) (\w+) URGP=(\d+)").unwrap();
-
 
     let mut result = vec![];
 
