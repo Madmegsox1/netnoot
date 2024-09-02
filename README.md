@@ -31,6 +31,8 @@ Before you begin, ensure you have the following installed on your system:
 
 ### Installation
 
+Replace {PORT} with the udp port that your Asus router is sending the logs too.
+
 1. Clone the Repo
 ```zsh
 git clone https://Madmegsox1/netnoot.git
@@ -40,7 +42,7 @@ cd netnoot
 ```zsh
 docker build -t netnoot --build-arg port={PORT} .
 ```
-3. docker run 
+3. Docker Run
 ```zsh
 docker run -d --name netnoot-server -p {PORT}:{PORT}/udp netnoot
 ```
