@@ -29,7 +29,27 @@ Before you begin, ensure you have the following installed on your system:
   - Asus router with packet drop logging enabled
   - A system to deploy the Netnoot Docker container
 
-### Installation
+
+### Installation (Local)
+
+Replace {PORT} with the udp port that your Asus router is sending the logs too.
+
+1. Clone the Repo
+```zsh
+git clone https://Madmegsox1/netnoot.git
+cd netnoot
+```
+2. Build Cargo
+```zsh
+cargo build
+```
+3. Docker Run
+```zsh
+cargo run -- -p {PORT}
+```
+The server will now be running and listening for incoming log data on the port that you have set.
+
+### Installation (Docker)
 
 Replace {PORT} with the udp port that your Asus router is sending the logs too.
 
