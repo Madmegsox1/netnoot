@@ -19,7 +19,7 @@ on:
 jobs:
   build:
     name: Build & Test
-    runs-on: ubuntu-latest\
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Build
@@ -30,6 +30,7 @@ jobs:
   rust-clippy-analyze:
     name: Run rust-clippy analyzing
     runs-on: ubuntu-latest
+    needs: build
     permissions:
       contents: read
       security-events: write
