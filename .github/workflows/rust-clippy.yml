@@ -15,10 +15,18 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "main" ]
-  schedule:
-    - cron: '31 4 * * 4'
-
+    
 jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest\
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build --verbose
+    - name: Test
+      run: cargo test --verbose
+
   rust-clippy-analyze:
     name: Run rust-clippy analyzing
     runs-on: ubuntu-latest
