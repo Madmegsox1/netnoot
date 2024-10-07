@@ -60,7 +60,7 @@ cd netnoot
 ```
 2. Build the docker image
 ```zsh
-docker build -t netnoot --build-arg port={PORT} .
+docker build -t netnoot --build-arg Port={PORT} .
 ```
 3. Docker Run
 ```zsh
