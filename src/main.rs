@@ -6,9 +6,7 @@ use sqlite::{Connection, State};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    //
-    // TODO wright a args parser
-    //
+
     if args.len() < 2 {
         panic!("Error: No port specifed with -p 1")
     }
